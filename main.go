@@ -15,16 +15,19 @@ import (
 // purpose:
 // read ints from stdin
 // sort ints[]
-// print quartile
+// calc quartile
 // print deviant values
+// v0.1 print green/red values
+// v0.2 - dont mess original data, return 1 if found quartile deviance
 
 func main() {
 	data := readints()
-	datas := sortints(data)
-	quartileDeviantPrint(datas)
+	if quartileDeviantPrint(data) {
+		os.Exit(1)
+	}
 }
 
-// Byvaltype : used for sorting ds values
+// Byvaltype : used for sorting []int32 values
 type Byvaltype []int32
 
 func (a Byvaltype) Len() int           { return len(a) }
@@ -49,7 +52,9 @@ func readints() []int32 {
 
 func sortints(d []int32) []int32 {
 	var s = make([]int32, len(d))
-	copy(s, d)
+	for k, v := range d {
+		s[k] = v
+	}
 	sort.Sort(Byvaltype(s))
 	return s
 }
@@ -60,28 +65,36 @@ func isDecimal(n float64) (x bool) {
 	}
 	return
 }
-func quartileDeviantPrint(d []int32) {
+
+func quartileDeviantPrint(d []int32) bool {
+	var flag bool
 
 	green := color.New(color.FgGreen).FprintfFunc()
 	red := color.New(color.FgRed).FprintfFunc()
+
 	R := quartileCalc(sortints(d))
+
 	if R[0] == -1 && R[1] == 0 && R[2] == 0 {
 		log.Print("bad quartile calc")
 	}
 
 	limitsup := R[2] + (R[2]-R[1])*1.5 // borne sup + ecart interquartile
 	limitinf := R[1] - (R[2]-R[1])*1.5
+
 	for _, v := range d {
 		if (float32)(v) < limitinf {
 			green(os.Stdout, " %d", v)
+			flag = true
 		} else if (float32)(v) > limitsup {
 			red(os.Stdout, " %d", v)
+			flag = true
 		} else {
 			fmt.Printf(" %d", v)
 		}
 
 	}
 	fmt.Printf("\n")
+	return flag
 }
 
 // Exemple de calcul

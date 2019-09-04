@@ -12,7 +12,6 @@ func Test_sortints(t *testing.T) {
 		args []int32
 		want []int32
 	}{
-		// TODO: Add test cases.
 		{"empty", []int32{}, []int32{}},
 		{"one value", []int32{0}, []int32{0}},
 		{"some values", []int32{1, 4, 7, 2, 6}, []int32{1, 2, 4, 6, 7}},
@@ -22,6 +21,10 @@ func Test_sortints(t *testing.T) {
 			if got := sortints(tt.args); !reflect.DeepEqual(got, tt.want) {
 				// if got := sortints(tt.args); got != tt.want {
 				t.Errorf("sortints() = %v, want %v", got, tt.want)
+			}
+
+			if len(tt.args) > 2 && reflect.DeepEqual(tt.args, tt.want) {
+				t.Errorf("sortints() destroy original data %v %v", &tt.args, &tt.want)
 			}
 		})
 	}
