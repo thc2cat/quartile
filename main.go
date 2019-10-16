@@ -1,7 +1,9 @@
+// + build linux
 package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"log"
 	"math"
@@ -12,7 +14,15 @@ import (
 	"github.com/fatih/color"
 )
 
+var (
+	quietmode, printall, printquartile, useMedianlimit bool
+	// printlow, printupper bool
+	devianceFactor float64
+	minimalValue   int
+)
+
 // purpose:
+// init flags
 // read ints from stdin
 // sort ints[]
 // calc quartile
@@ -21,10 +31,27 @@ import (
 // v0.2 - dont mess original data, return 1 if found quartile deviance
 
 func main() {
+	initflags()
 	data := readints()
-	if quartileDeviantPrint(data) {
+	if len(data) > 0 && quartileDeviantPrint(data) {
 		os.Exit(1)
 	}
+	os.Exit(0)
+}
+
+func initflags() {
+	flag.BoolVar(&quietmode, "q", false, "quiet mode")
+	flag.BoolVar(&printall, "a", false, "print all values")
+	flag.BoolVar(&printquartile, "p", false, "print quartiles values")
+	flag.Float64Var(&devianceFactor, "f", 1.5, "deviant factor")
+	flag.BoolVar(&useMedianlimit, "M", false, "use Median Limit instead (3x)")
+	flag.IntVar(&minimalValue, "m", 0, "minimal value")
+
+	// flag.BoolVar(&printlow, "L", false, "print low deviant values")
+	// flag.BoolVar(&printupper, "U", true, "print upper deviant values")
+	// flag.Float64Var(&minimalValue, "m", 0, "minimal value")
+
+	flag.Parse()
 }
 
 // Byvaltype : used for sorting []int32 values
@@ -44,7 +71,9 @@ func readints() []int32 {
 		if err != nil {
 			log.Printf("Error converting %s to int", line)
 		} else {
-			ds = append(ds, (int32)(N))
+			if N > minimalValue {
+				ds = append(ds, (int32)(N))
+			}
 		}
 	}
 	return ds
@@ -67,7 +96,8 @@ func isDecimal(n float64) (x bool) {
 }
 
 func quartileDeviantPrint(d []int32) bool {
-	var flag bool
+	var hasDeviant bool
+	var limitsup, limitinf float32
 
 	green := color.New(color.FgGreen).FprintfFunc()
 	red := color.New(color.FgRed).FprintfFunc()
@@ -75,26 +105,42 @@ func quartileDeviantPrint(d []int32) bool {
 	R := quartileCalc(sortints(d))
 
 	if R[0] == -1 && R[1] == 0 && R[2] == 0 {
-		log.Print("bad quartile calc")
+		log.Print("bad quartile calc ")
+		os.Exit(-1)
 	}
 
-	limitsup := R[2] + (R[2]-R[1])*1.5 // borne sup + ecart interquartile
-	limitinf := R[1] - (R[2]-R[1])*1.5
+	if printquartile {
+		green(os.Stdout, "== Q1=%v", R[1])
+		fmt.Printf(" Mediane=%v", R[0])
+		red(os.Stdout, " Q3=%v ==\n", R[2])
+	}
 
+	if useMedianlimit {
+		limitsup = R[0] + 3*R[0]
+		limitinf = R[0] - 3*R[0]
+	} else {
+		// borne sup + ecart interquartile
+		limitsup = R[2] + (R[2]-R[1])*(float32)(devianceFactor)
+		limitinf = R[1] - (R[2]-R[1])*(float32)(devianceFactor)
+	}
 	for _, v := range d {
 		if (float32)(v) < limitinf {
-			green(os.Stdout, " %d", v)
-			flag = true
+			if !quietmode {
+				green(os.Stdout, "%d\n", v)
+			}
+			hasDeviant = true
 		} else if (float32)(v) > limitsup {
-			red(os.Stdout, " %d", v)
-			flag = true
+			if !quietmode {
+				red(os.Stdout, "%d\n", v)
+			}
+			hasDeviant = true
 		} else {
-			fmt.Printf(" %d", v)
+			if printall && !quietmode {
+				fmt.Printf("%d\n", v)
+			}
 		}
-
 	}
-	fmt.Printf("\n")
-	return flag
+	return hasDeviant
 }
 
 // Exemple de calcul
@@ -111,7 +157,7 @@ func quartileCalc(d []int32) [3]float32 {
 
 	N := len(d)
 	if N < 4 {
-		log.Printf("bad quartileCalc %v", d)
+		// log.Printf("bad quartileCalc %v", d)
 		return [3]float32{-1, 0, 0}
 	}
 
