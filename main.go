@@ -10,6 +10,7 @@ import (
 	"os"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/fatih/color"
 )
@@ -29,6 +30,7 @@ var (
 // print deviant values
 // v0.1 print green/red values
 // v0.2 - dont mess original data, return 1 if found quartile deviance
+// v0.3 - trim space and tabs
 
 func main() {
 	initflags()
@@ -67,7 +69,7 @@ func readints() []int32 {
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		line = scanner.Text()
-		N, err := strconv.Atoi(line)
+		N, err := strconv.Atoi(strings.Trim(line, " \t"))
 		if err != nil {
 			log.Printf("Error converting %s to int", line)
 		} else {
