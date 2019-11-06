@@ -20,6 +20,8 @@ var (
 	// printlow, printupper bool
 	devianceFactor float64
 	minimalValue   int
+	// Version is git tag
+	Version string
 )
 
 // purpose:
@@ -48,6 +50,7 @@ func initflags() {
 	flag.Float64Var(&devianceFactor, "f", 1.5, "deviant factor")
 	flag.BoolVar(&useMedianlimit, "M", false, "use Median Limit instead (3x)")
 	flag.IntVar(&minimalValue, "m", 0, "minimal value")
+	flag.StringVar(&Version, "version", Version, "current Version")
 
 	// flag.BoolVar(&printlow, "L", false, "print low deviant values")
 	// flag.BoolVar(&printupper, "U", true, "print upper deviant values")
