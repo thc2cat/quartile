@@ -50,7 +50,7 @@ func initflags() {
 	flag.Float64Var(&devianceFactor, "f", 1.5, "deviant factor")
 	flag.BoolVar(&useMedianlimit, "M", false, "use Median Limit instead (3x)")
 	flag.IntVar(&minimalValue, "m", 0, "minimal value")
-	flag.StringVar(&Version, "version", Version, "current Version")
+	flag.StringVar(&Version, "v", Version, "show current Version")
 
 	// flag.BoolVar(&printlow, "L", false, "print low deviant values")
 	// flag.BoolVar(&printupper, "U", true, "print upper deviant values")
@@ -84,20 +84,15 @@ func readints() []int32 {
 	return ds
 }
 
-func sortints(d []int32) []int32 {
-	var s = make([]int32, len(d))
-	for k, v := range d {
-		s[k] = v
-	}
-	sort.Sort(Byvaltype(s))
-	return s
+func sortints(source []int32) []int32 {
+	var destination = make([]int32, len(source))
+	copy(destination, source)
+	sort.Sort(Byvaltype(destination))
+	return destination
 }
 
-func isDecimal(n float64) (x bool) {
-	if math.Floor(n) == n {
-		x = true
-	}
-	return
+func isDecimal(n float64) bool {
+	return math.Floor(n) == n
 }
 
 func quartileDeviantPrint(d []int32) bool {

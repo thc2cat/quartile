@@ -50,17 +50,25 @@ func Test_quartileCalc(t *testing.T) {
 		args []int32
 		want [3]float32
 	}{
-		// {"empty", []int32{}, [3]float32{-1, 0, 0}},
-		// {"not enought value", []int32{5}, [3]float32{-1, 0, 0}},
-		// {"medianeven", []int32{1, 4, 6, 7}, [3]float32{5, 0, 0}},
-		// {"medianodd", []int32{1, 4, 6, 7, 9}, [3]float32{6, 0, 0}},
-		// {"medianodd", []int32{1, 4, 6, 7, 9, 10, 211}, [3]float32{7, 4, 10}},
+		{"basic", []int32{10, 25, 30, 40, 41, 42, 50, 55, 70, 101, 110, 111}, [3]float32{46, 40, 70}},
+		{"empty", []int32{}, [3]float32{-1, 0, 0}},
+		{"not enought value", []int32{5}, [3]float32{-1, 0, 0}},
+		{"medianeven", []int32{1, 4, 6, 7}, [3]float32{5, 4, 6}},
+		{"medianodd1", []int32{1, 4, 6, 7, 9}, [3]float32{6, 4, 7}},
+		{"medianodd2", []int32{1, 4, 6, 7, 9, 10, 211}, [3]float32{7, 4, 10}},
 		{"khan", []int32{25, 28, 29, 39, 30, 34, 35, 35, 37, 38}, [3]float32{32, 29, 35}},
 		{"khan1", []int32{5, 7, 10, 15, 19, 21, 21, 22, 22, 23, 23, 23, 23, 23, 24, 24, 24, 24, 25}, [3]float32{23, 19, 24}},
-		{"test1", []int32{10, 25, 30, 40, 41, 42, 50, 55, 70, 101, 110, 111}, [3]float32{46, 40, 70}},
 		{"test2", []int32{1, 11, 15, 19, 20, 24, 28, 34, 37, 47, 50, 61, 68}, [3]float32{28, 19, 47}},
-		// {"some values", []int32{3, 13, 28, 31, 37, 50, 57, 62, 78, 79, 81, 83}, [3]float32{53.5, 28.75, 78.75}},
+		{"some values", []int32{3, 13, 28, 31, 37, 50, 57, 62, 78, 79, 81, 83}, [3]float32{53.5, 31, 78}},
 	}
+
+	// Exemple :
+	// set :  3, 13, 28, 31, 37, 50, 57, 62, 78, 79, 81, 83 => 12 valeurs
+	// even size set => 12/2 = 6 : Sum value(6,7)/2 => (50+57)/2 => 107/2 = 53.5 == Median
+	// Q1 = 12/4 = 4 => 4 eme valeur => 31 = Q1
+	// Q2 = 12*3/4   => 9 eme valeur => 78 = Q2
+	// Expect [3]float32{53.5, 31, 78} as result
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := quartileCalc(tt.args); !reflect.DeepEqual(got, tt.want) {
