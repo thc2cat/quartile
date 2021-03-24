@@ -50,7 +50,7 @@ What log file is suspect for you ?
 
 output nothing, cause we don t have a really big deviation
 
-Using Q1 values from "-p" option , we set minimal value
+Using Q1 values from "-p" option , we set minimal value, and retry
 
 # wc -l 2021-03*/mx.domain/mail.log | awk '!/total/{ print $1 }' | quartile -p -m 110994
 == Q1=172090 Mediane=184757 Q3=210465 ==
