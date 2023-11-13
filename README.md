@@ -1,5 +1,8 @@
 # Using quartile to determine abnormal values
 
+![go.yml](https://github.com/thc2cat/quartile/actions/workflows/go.yml/badge.svg)
+
+
 This tool use quartile method to detect abnormal values from a dataset using various méthods
 
 optionals calc are :
