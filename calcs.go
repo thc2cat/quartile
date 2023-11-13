@@ -95,37 +95,30 @@ func isDecimal(n float64) bool {
 */
 
 func ZScoreCalF32(data []entries) int {
+	//
 	// ZScore => Calculer la moyenne, l'ecart type
 	// si l'ecart type > 3x l'ecart moyen alors suspect
+	//
 	var flag int
+	var somme, sommeecarts, ecartmoyen float32
+
 	N := len(data)
-	var somme float32
+
 	for _, v := range data {
 		somme += v.value
 	}
 	ecarts := make([]float32, N)
 	moyenne := somme / (float32)(N)
 
-	// fmt.Printf("Somme %s , Moyenne %s length %d \n",
-	// 	betterFormat(somme), betterFormat(moyenne), N)
-	var sommeecarts, ecartmoyen float32
 	for k, v := range data {
 		ecarts[k] = myAbs(v.value - moyenne)
-		sommeecarts += myAbs(v.value - moyenne)
-		// fmt.Printf("ecarts[key=%d]=%f\n", k, ecarts[k])
+		sommeecarts += ecarts[k]
 	}
 
 	ecartmoyen = sommeecarts / (float32)(N)
-	// for k, v := range data {
-	// 	if v.value > moyenne+3*ecartmoyen {
-	// 		fmt.Printf("Z-Score pour valeur %s\n",
-	// 			betterFormat(data[k].value))
-	// 	}
-	// }
+
 	for k, v := range ecarts {
 		if v > 3*ecartmoyen {
-			// fmt.Printf("Z-Score modifié (%s)= %s pour valeur %s\n",
-			// 	betterFormat(ecartmoyen), betterFormat(v), betterFormat(data[k].value))
 			fmt.Printf("> %s %s\n", betterFormat(data[k].value), data[k].text)
 			flag++
 		}
