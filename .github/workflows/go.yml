@@ -21,6 +21,8 @@ jobs:
       with:
         go-version: 1.21
 
+    - uses: evantorrie/mott-the-tidier@v1-beta
+          
     - name: Build
       run: go build -v ./...
 
