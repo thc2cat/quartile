@@ -52,7 +52,8 @@ What log file is suspect for you ?
 
 $ wc -l 2021-03*/mx.domain/mail.log | rg mail.log | quartile
 
-output nothing, cause we don t have a really big deviation, but with -B (Box Method), output low and high values
+output nothing, cause we don t have a really big deviation, 
+but with -B (Box Method), output low and high values
 
 $ go build ; ./quartile.exe -B < data2
 < 89610 2021-03-20/mx.domain/mail.log
@@ -60,11 +61,14 @@ $ go build ; ./quartile.exe -B < data2
 > 290674 2021-03-22/mx.domain/mail.log
 < 51808 2021-03-24/mx.domain/mail.log
 
-When dispersion is low, you can also try lowering Tukey factor ( 1.5 default ) 
+When dispersion is low, you can also try 
+lowering Tukey factor ( 1.5 default ) 
+
 $ go build ; ./quartile.exe -f .8 < data2
 > 290674 2021-03-22/mx.domain/mail.log
 
-When there is spikes in your data , Z-Score method is usually effective (exemple spammers)
+When there is spikes in your data , Z-Score method 
+is usually effective (exemple spammers)
 
 $ go build ; ./quartile.exe -Z < data
 > 881 thomas.Banslish@vsuq.org
