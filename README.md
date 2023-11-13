@@ -1,18 +1,22 @@
 # Using quartile to determine abnormal values
 
-This tool use quartile method to print out abnormal values from a dataset using quartile method.
+This tool use quartile method to detect abnormal values from a dataset using various méthods
 
 optionals calc are :
 
-* Median output : a value is abnormal if 3x>Median value
-* minimal value : to reduce low number parasites
-* devianceFactor : if normal quartile 1.5 is insufficient
+* -m minimal value : to reduce low number parasites
+* Default quartile calc
+* -f deviance Tuckey Factor : if normal quartile 1.5 is insufficient
+* -M for 3xMedian deviance
+* -B for Boxplot méthod
+* -Z for Z-Score modified méthod
 
 * Quiet mode only exit code on abnormal values, and no outputs
 * Print quartiles values show Median, Q1, Q2
+* Print limits show limits used in quartile methods
 
 > `Memory Warning :`
-> data is fully loaded in memory before sorting and printing.
+> data file is fully loaded in memory before sorting and printing.
 
 ## Exemple
 
@@ -46,15 +50,23 @@ What log file is suspect for you ?
     51808 2021-03-24/mx.domain/mail.log
   3963573 total                                              
 
-# wc -l 2021-03*/mx.domain/mail.log | awk '!/total/{ print $1 }' | quartile
+$ wc -l 2021-03*/mx.domain/mail.log | rg mail.log | quartile
 
-output nothing, cause we don t have a really big deviation
+output nothing, cause we don t have a really big deviation, but with -B (Box Method), output low and high values
 
-Using Q1 values from "-p" option , we set minimal value
+$ go build ; ./quartile.exe -B < data2
+< 89610 2021-03-20/mx.domain/mail.log
+< 82982 2021-03-21/mx.domain/mail.log
+> 290674 2021-03-22/mx.domain/mail.log
+< 51808 2021-03-24/mx.domain/mail.log
 
-# wc -l 2021-03*/mx.domain/mail.log | awk '!/total/{ print $1 }' | quartile -p -m 110994
-== Q1=172090 Mediane=184757 Q3=210465 ==
-290674
+When dispersion is low, you can also try lowering Tukey factor ( 1.5 default ) 
+$ go build ; ./quartile.exe -f .8 < data2
+> 290674 2021-03-22/mx.domain/mail.log
 
-So we should have a look to 2021-03-22/mx.domain/mail.log which should be your first suspect.
+When there is spikes in your data , Z-Score method is usually effective (exemple spammers)
+
+$ go build ; ./quartile.exe -Z < data
+> 881 thomas.Banslish@vsuq.org
+
 ```
