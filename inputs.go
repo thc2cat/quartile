@@ -52,14 +52,14 @@ func readAll() []entries {
 
 /**
  * getNumbers return slice of float32 from []entries value
- *
+ * where []entries > min
  */
-func getNumbers(In []entries, min int) []float32 {
-	R := make([]float32, len(In))
+func getNumbers(In []entries, min float64) []float32 {
 	minf := (float32)(min)
+	R := make([]float32, 0)
 	for k := range In {
-		if min == 0 || (In[k].value >= minf) {
-			R[k] = In[k].value
+		if minf == 0 || (In[k].value >= minf) {
+			R = append(R, In[k].value)
 		}
 	}
 	return R

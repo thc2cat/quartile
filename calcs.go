@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math"
 )
 
@@ -94,37 +93,83 @@ func isDecimal(n float64) bool {
 
 */
 
-func ZScoreCalF32(data []entries) int {
+func ZScoreCalF32(data []entries, mini float64) (float32, float32) {
 	//
 	// ZScore => Calculer la moyenne, l'ecart type
 	// si l'ecart type > 3x l'ecart moyen alors suspect
 	//
-	var flag int
-	var somme, sommeecarts, ecartmoyen float32
+	var somme, sommeecarts float32
 
-	N := len(data)
+	var count int
 
 	for _, v := range data {
-		somme += v.value
+		if (mini == 0) || (v.value >= float32(mini)) {
+			somme += v.value
+			count++
+		}
 	}
-	ecarts := make([]float32, N)
-	moyenne := somme / (float32)(N)
+	ecarts := make([]float32, count)
+	moyenne := somme / (float32)(count)
 
-	for k, v := range data {
-		ecarts[k] = myAbs(v.value - moyenne)
-		sommeecarts += ecarts[k]
-	}
-
-	ecartmoyen = sommeecarts / (float32)(N)
-
-	for k, v := range ecarts {
-		if v > 3*ecartmoyen {
-			fmt.Printf("> %s %s\n", betterFormat(data[k].value), data[k].text)
-			flag++
+	var i int
+	for _, v := range data {
+		if (mini == 0) || (v.value >= float32(mini)) {
+			ecarts[i] = myAbs(v.value - moyenne)
+			sommeecarts += ecarts[i]
+			i++
 		}
 	}
 
-	return flag
+	ecartmoyen := sommeecarts / (float32)(count)
+
+	return moyenne, ecartmoyen
+}
+
+func ZScoreMADCalF32(data []entries, mini float64) (float32, float32) {
+	//
+	// ZScore => Calculer la moyenne, l'ecart type
+	// si l'ecart type > 3x l'ecart moyen alors suspect
+	//
+	var sommeecarts float32
+
+	var count, myidx int
+
+	// Par rapport au nombre, trouver le point médian (!! pas la moyenne)
+	Arr := getNumbers(data, mini)
+	sortSlice(Arr)
+
+	N := len(Arr)
+	if N == 0 {
+		return 0, 0
+	}
+
+	if N%2 == 1 { // imPair
+		myidx = (N + 1) / 2
+	} else {
+		myidx = N / 2
+	}
+
+	MAD := Arr[myidx] // Median Absolute Data point
+
+	for _, v := range data {
+		if (mini == 0) || (v.value >= float32(mini)) {
+			count++
+		}
+	}
+	ecarts := make([]float32, count)
+
+	var i int
+	for _, v := range data {
+		if (mini == 0) || (v.value >= float32(mini)) {
+			ecarts[i] = myAbs(v.value - MAD)
+			sommeecarts += ecarts[i]
+			i++
+		}
+	}
+
+	ecartmoyen := sommeecarts / (float32)(count)
+
+	return MAD, ecartmoyen
 }
 
 func myAbs(x float32) float32 {

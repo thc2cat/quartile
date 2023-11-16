@@ -2,24 +2,36 @@
 
 ![go.yml](https://github.com/thc2cat/quartile/actions/workflows/go.yml/badge.svg)
 
+This tool use quartile method to detect abnormal values from a dataset using various méthods.
 
-This tool use quartile method to detect abnormal values from a dataset using various méthods
+## Typical usage
+
+```shell
+ grep pattern |awk '{ print $fields }'\
+  | sort| uniq -c | sort -rn | head -30 \
+  | quartile [options]
+```
 
 optionals calc are :
 
 * -m minimal value : to reduce low number parasites
-* Default quartile calc
+
+* Default is quartile calc
 * -f deviance Tuckey Factor : if normal quartile 1.5 is insufficient
-* -M for 3xMedian deviance
+* -M for 3xAvg deviance
 * -B for Boxplot méthod
-* -Z for Z-Score modified méthod
+* -Z for Z-Score méthod (using avg)
+* -D for Z-Score modified method ( using median point )
 
 * Quiet mode only exit code on abnormal values, and no outputs
 * Print quartiles values show Median, Q1, Q2
 * Print limits show limits used in quartile methods
 
-> `Memory Warning :`
-> data file is fully loaded in memory before sorting and printing.
+Output of deviant values are prefixed with ">" or "<".
+
+>> `Memory Warning :`
+>> data file is fully loaded in memory before sorting and printing.
+>> But usually you only search limited values.
 
 ## Exemple
 

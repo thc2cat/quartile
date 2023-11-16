@@ -13,6 +13,7 @@ package main
 // v0.3 - trim space and tabs
 // v0.4 - float32 and direct input of "sort |uniq -c|sort -rn|head -nn"
 // V0.5 - Adding Z-score mod méthod.
+// V0.6 - Bug in getNumbers
 
 import (
 	"flag"
@@ -21,11 +22,11 @@ import (
 )
 
 var (
-	quietmode, printall, printquartile, printlimits bool
-	useMedianlimit, useBoxplot, useZScore           bool
+	quietmode, printall, printquartile, printlimits     bool
+	useMedianlimit, useBoxplot, useZScore, useZScoreMAD bool
 	// printlow, printupper bool
-	devianceFactor float64
-	minimalValue   int
+	devianceFactor, ZdevianceFactor, minimalValue float64
+
 	// Version is git tag
 	Version string
 )
@@ -33,11 +34,16 @@ var (
 func main() {
 	initflags()
 	data := readAll()
-	N := getNumbers(data, minimalValue)
 
-	if useZScore {
-		os.Exit(ZScoreCalF32(data))
-	} else {
+	switch {
+	case useZScore:
+		os.Exit(ZScorePrintF32bis(data))
+	case useZScoreMAD:
+		os.Exit(ZScoreMADPrintF32bis(data))
+
+	default:
+		N := getNumbers(data, minimalValue)
+
 		Q := quartileCalcf32(N)
 		if Q[0] == 0 && Q[1] == 0 {
 			fmt.Printf("Bad quartile (Exiting) : \n")
@@ -56,11 +62,14 @@ func initflags() {
 	flag.BoolVar(&printlimits, "l", false, "print limits")
 
 	flag.Float64Var(&devianceFactor, "f", 1.5, "Tukey deviance factor")
+	flag.Float64Var(&ZdevianceFactor, "z", 3.0, "Z Score deviance factor")
+	flag.Float64Var(&minimalValue, "m", 0, "minimal value")
+
 	flag.BoolVar(&useMedianlimit, "M", false, "use Median Limit instead (3x)")
 	flag.BoolVar(&useBoxplot, "B", false, "use Boxplot [M-(Q3-Q1),M+(Q3-Q1)]")
-	flag.BoolVar(&useZScore, "Z", false, "use Z-Score(mod)")
+	flag.BoolVar(&useZScore, "Z", false, "use Z-Score")
+	flag.BoolVar(&useZScoreMAD, "D", false, "use Z-Score mod")
 
-	flag.IntVar(&minimalValue, "m", 0, "minimal value")
 	flag.StringVar(&Version, "v", Version, "show current Version")
 
 	flag.Parse()
