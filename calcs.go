@@ -16,6 +16,8 @@ import (
 // Dans la fonction qui suit, R[0]==Mediane, R[1]=Q1 et R[2]=Q3
 //
 // https://fastercapital.com/fr/contenu/Valeurs-aberrantes-dans-les-quartiles---identification-des-valeurs-extremes-dans-l-ensemble-de-donnees.html#Introduction-aux-valeurs-aberrantes-et-aux-quartiles
+
+// quartileCalcf32 return quartiles Q1-3 from []float32 array
 func quartileCalcf32(data []float32) [3]float32 { // Return Q1 Q2 Q3
 	var Q [3]float32
 	var n float64
@@ -57,6 +59,7 @@ func quartileCalcf32(data []float32) [3]float32 { // Return Q1 Q2 Q3
 	return Q
 }
 
+// isDecimal function test if float is decimal
 func isDecimal(n float64) bool {
 	return math.Floor(n) == n
 }
@@ -93,6 +96,7 @@ func isDecimal(n float64) bool {
 
 */
 
+// ZScoreCalF32 calculate median and ecart type from []entries > mini value
 func ZScoreCalF32(data []entries, mini float64) (float32, float32) {
 	//
 	// ZScore => Calculer la moyenne, l'ecart type

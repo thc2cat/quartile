@@ -1,4 +1,4 @@
-module projects/quartile
+module github.com/thc2cat/quartile
 
 go 1.21
 
